@@ -1,4 +1,5 @@
 import express from "express";
+import * as integranteService from "./integrantes.serv";
 
 export const integrantesController = express.Router();
 
@@ -10,16 +11,28 @@ integrantesController.get("/", async (req, res) => {
   const direction = req.query.direction as string | undefined;
   const search =
     req.query.search !== undefined ? req.query.search.toString() : undefined;
-  res.end("passei pelo controller");
+  const integrantes = await integranteService.getIntegrantes({
+    limit,
+    offset,
+    search,
+    order_by,
+    direction,
+  });
+  res.status(200).json(integrantes);
 });
 
 //Pega Integrante pelo ID
 integrantesController.get("/:id", async (req, res) => {
   const id = Number(req.params.id);
+  const integrante = await integranteService.getIntegranteById(id);
+  res.status(200).json(integrante);
 });
 
 //Adiciona um Integrante
-integrantesController.post("/", async (req, res) => {});
+integrantesController.post("/", async (req, res) => {
+  const response = await integranteService.addIntegrante(req.body);
+  res.status(201).json(response);
+});
 
 //Sobrescrever um Integrante
 integrantesController.put("/:id", async (req, res) => {

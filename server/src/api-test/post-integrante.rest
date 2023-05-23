@@ -1,0 +1,6 @@
+POST http://localhost:8080/integrantes/
+Content-Type: application/json
+
+{
+"name": "Ezequiel", "cpf": "Silveira", "data_nasc": "2023-04-17T10:48:18.584Z","plano":"Silver","resgate_ativo":false,"desconto_farm":true
+}
