@@ -35,7 +35,7 @@ app.use(function (req, res, next) {
 });
 
 app.use("/integrantes", integrantesController);
-app.use("/dependentes", dependentesController);
+app.use("/integrantes/:id/dependentes", dependentesController);
 
 app.listen(port, host, () => {
   console.log(`Servidor express iniciado em http://${host}:${port}`);
