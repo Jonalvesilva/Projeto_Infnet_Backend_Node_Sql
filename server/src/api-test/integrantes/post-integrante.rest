@@ -1,0 +1,7 @@
+POST http://localhost:8080/integrantes/
+Content-Type: application/json
+
+{
+"name": "Ezequiel", "cpf": "14433666769", "data_nasc": "2023-04-17T10:48:18.584Z", "plano":"Silver","resgate_domiciliar":false,"desconto_farm":true,
+"tel_res":"2199934545","tel_cel":"2199999999","email":"teste@gmail.com"
+}
