@@ -16,7 +16,7 @@ export type Dependente = {
   cpf: string;
 };
 
-export type FindIntegrantesParams = {
+export type FindParams = {
   limit?: number;
   offset?: number;
   search?: string;
