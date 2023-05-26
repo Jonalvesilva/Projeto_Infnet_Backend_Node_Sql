@@ -1,14 +1,9 @@
 import { getPool, sql } from "../database";
 import { sql as sqlObj } from "slonik";
-import type { Integrante } from "../../../shared/types";
-
-type FindIntegrantesParams = {
-  limit?: number;
-  offset?: number;
-  search?: string;
-  order_by?: string;
-  direction?: string;
-};
+import { normalizeText, createSearchSql } from "./functions/functions";
+import type { Integrante, FindIntegrantesParams } from "../../../shared/types";
+import * as schema from "./schemas/createIntegranteSchema";
+import { object } from "zod";
 
 export async function getIntegrantes({
   limit = 10,
@@ -18,6 +13,10 @@ export async function getIntegrantes({
   direction = "desc",
 }: FindIntegrantesParams = {}) {
   const pool = await getPool();
+
+  const sqlSearch =
+    search !== "" ? createSearchSql(normalizeText(search)) : sqlObj.fragment``;
+
   const sqlDirection =
     direction.toLowerCase() === "desc" ? sql`desc` : sql`asc`;
 
@@ -29,7 +28,7 @@ export async function getIntegrantes({
     await pool.many(sql`SELECT t1.*, t2.plano, t3.ativo AS resgate_ativo, t4.ativo AS desconto_farm from public.integrantes t1 
   JOIN PUBLIC.plano t2 ON t1.id_integrante = t2.id_integrante 
   JOIN PUBLIC.resgate_domiciliar t3 ON t1.id_integrante = t3.id_integrante
-  JOIN PUBLIC.desconto_farmacia t4 ON t1.id_integrante = t4.id_integrante ${sqlOrderBy}
+  JOIN PUBLIC.desconto_farmacia t4 ON t1.id_integrante = t4.id_integrante ${sqlSearch} ${sqlOrderBy}
  limit ${limit} offset ${offset}`);
 
   const totalIntegrantes = await pool.one(
@@ -51,6 +50,69 @@ export async function getIntegranteById(id: number) {
 }
 
 export async function addIntegrante(integrante: Integrante) {
-  const response = await integrante;
-  return response;
+  //Validação de Dados
+  const validation = await schema.createIntegranteSchema.safeParseAsync(
+    integrante
+  );
+  if (validation.success === false) {
+    return {
+      success: false,
+      post: null,
+      errors: validation.error.errors,
+    };
+  }
+
+  const {
+    name,
+    cpf,
+    data_nasc,
+    tel_cel,
+    tel_res,
+    email,
+    plano,
+    resgate_domiciliar,
+    desconto_farm,
+  } = validation.data;
+
+  const pool = await getPool();
+
+  //Insert Integrante
+  let insert = false;
+
+  try {
+    await pool.one(sql`
+    insert into public.integrantes (nome,data_nasc,cpf)
+    values (${name},${data_nasc},${cpf})
+    returning *
+  `);
+    insert = true;
+  } catch (error: any) {
+    return `Falha ao adicionar integrante. Erro:${error.message}`;
+  }
+
+  //Se Insert do Integrante Ok - Adiciona as outras informações
+  if (insert) {
+    let newIntegranteId = await pool.one(
+      sql`SELECT MAX(id_integrante) FROM public.integrantes`
+    );
+    newIntegranteId = newIntegranteId.max;
+
+    const insertContato = await pool.one(
+      sql`insert into public.contato (id_integrante,tel_res,tel_cel,email) values(${newIntegranteId},${tel_res},${tel_cel},${email}) returning *`
+    );
+
+    const insertPlano = await pool.one(
+      sql`insert into public.plano (id_integrante,plano) values(${newIntegranteId},${plano}) returning *`
+    );
+
+    const insertDescFarm = await pool.one(
+      sql`insert into public.desconto_farmacia (id_integrante,ativo) values(${newIntegranteId},${desconto_farm}) returning *`
+    );
+
+    const insertResgateDom = await pool.one(
+      sql`insert into public.resgate_domiciliar (id_integrante,ativo) values(${newIntegranteId},${resgate_domiciliar}) returning *`
+    );
+  }
+
+  return "Integrante Cadastrado";
 }
