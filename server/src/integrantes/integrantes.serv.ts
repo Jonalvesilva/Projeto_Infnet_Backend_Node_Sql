@@ -5,6 +5,7 @@ import type { Integrante, FindIntegrantesParams } from "../../../shared/types";
 import * as schema from "./schemas/createIntegranteSchema";
 import { object } from "zod";
 
+//Function Mostrar Integrantes - Search Adaptado
 export async function getIntegrantes({
   limit = 10,
   offset = 0,
@@ -38,6 +39,7 @@ export async function getIntegrantes({
   return { integrantes: integrantes, total: totalIntegrantes };
 }
 
+//Function Mostrar Integrante por ID
 export async function getIntegranteById(id: number) {
   const pool = await getPool();
   const integrante = await pool.one(sql`
@@ -49,6 +51,7 @@ export async function getIntegranteById(id: number) {
   return integrante;
 }
 
+//Function Adicionar Integrante
 export async function addIntegrante(integrante: Integrante) {
   //Validação de Dados
   const validation = await schema.createIntegranteSchema.safeParseAsync(
@@ -115,4 +118,84 @@ export async function addIntegrante(integrante: Integrante) {
   }
 
   return "Integrante Cadastrado";
+}
+
+//Function Deletar Integrante
+export async function deleteIntegranteById(id: number) {
+  const pool = await getPool();
+  try {
+    const integrante = await pool.one(
+      sql`SELECT * from public.integrantes where id_integrante=${id}`
+    );
+
+    const results = await pool.query(sql`
+  delete from public.integrantes where id_integrante = ${id}
+`);
+
+    const success = results.rowCount === 1;
+
+    return {
+      success,
+      integrante,
+    };
+  } catch {
+    return { success: false, message: "Não foi possível deletar o integrante" };
+  }
+}
+
+//Function Editar Integrante
+export async function editarIntegranteById(id: number, integrante: Integrante) {
+  //Validação de Dados
+  const validation = await schema.createIntegranteSchema.safeParseAsync(
+    integrante
+  );
+  if (validation.success === false) {
+    return {
+      success: false,
+      post: null,
+      errors: validation.error.errors,
+    };
+  }
+
+  const {
+    name,
+    cpf,
+    data_nasc,
+    tel_cel,
+    tel_res,
+    email,
+    plano,
+    resgate_domiciliar,
+    desconto_farm,
+  } = validation.data;
+
+  const pool = await getPool();
+  const updateIntegrante = await pool.one(
+    sql`update public.integrantes set nome=${name},cpf=${cpf},data_nasc=${data_nasc} where id_integrante=${id} returning *`
+  );
+
+  const updateContato = await pool.one(
+    sql`update public.contato set tel_cel=${tel_cel},tel_res=${tel_res},email=${email} where id_integrante=${id} returning *`
+  );
+
+  const updatePlano = await pool.one(
+    sql`update public.plano set plano=${plano} where id_integrante=${id} returning *`
+  );
+
+  const updateResgate = await pool.one(
+    sql`update public.resgate_domiciliar set ativo=${resgate_domiciliar} where id_integrante=${id} returning *`
+  );
+
+  const updateDescFarm = await pool.one(
+    sql`update public.desconto_farmacia set ativo=${desconto_farm} where id_integrante=${id} returning *`
+  );
+
+  const result = {
+    ...updateIntegrante,
+    ...updateContato,
+    ...updatePlano,
+    resgate_domiciliar: resgate_domiciliar,
+    desconto_farm: desconto_farm,
+  };
+  return { sucess: true, result };
 }

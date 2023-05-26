@@ -34,12 +34,16 @@ integrantesController.post("/", async (req, res) => {
   res.status(201).json(response);
 });
 
-//Sobrescrever um Integrante
+//Alterar um Integrante
 integrantesController.put("/:id", async (req, res) => {
   const id = Number(req.params.id);
+  const response = await integranteService.editarIntegranteById(id, req.body);
+  res.status(200).json(response);
 });
 
 // Deleta um Integrante pelo ID
 integrantesController.delete("/:id", async (req, res) => {
   const id = Number(req.params.id);
+  const response = await integranteService.deleteIntegranteById(id);
+  res.status(200).json(response);
 });
