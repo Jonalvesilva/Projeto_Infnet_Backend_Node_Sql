@@ -1,9 +1,8 @@
 import { getPool, sql } from "../database";
 import { sql as sqlObj } from "slonik";
 import { normalizeText, createSearchSql } from "./functions/functions";
-import type { Integrante, FindIntegrantesParams } from "../../../shared/types";
+import type { Integrante, FindParams } from "../../../shared/types";
 import * as schema from "./schemas/createIntegranteSchema";
-import { object } from "zod";
 
 //Function Mostrar Integrantes - Search Adaptado
 export async function getIntegrantes({
@@ -12,7 +11,7 @@ export async function getIntegrantes({
   search = "",
   order_by = "nome",
   direction = "desc",
-}: FindIntegrantesParams = {}) {
+}: FindParams = {}) {
   const pool = await getPool();
 
   const sqlSearch =
