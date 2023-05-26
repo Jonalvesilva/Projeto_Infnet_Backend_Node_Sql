@@ -3,12 +3,23 @@ export type Integrante = {
   cpf: string;
   data_nasc: string;
   plano: string;
+  resgate_ativo: boolean;
+  desconto_farm: boolean;
+  tel_cel: string;
+  tel_res: string;
+  email: string;
 };
 
 export type Dependente = {
-  id: number;
-  cod_integrante: number;
   name: string;
   data_nasc: string;
   cpf: string;
+};
+
+export type FindIntegrantesParams = {
+  limit?: number;
+  offset?: number;
+  search?: string;
+  order_by?: string;
+  direction?: string;
 };
