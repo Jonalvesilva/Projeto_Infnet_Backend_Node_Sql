@@ -26,19 +26,29 @@ dependentesController.get("/:idIntegrante", async (req, res) => {
 });
 
 //Pega Dependente pelo ID
-dependentesController.get("/:id", async (req, res) => {
+dependentesController.get("/:idIntegrante/:id", async (req, res) => {
   const id = Number(req.params.id);
+  const response = await dependentesService.getDepedenteById(id);
+  return res.status(200).json(response);
 });
 
 //Adiciona um Depedente
-dependentesController.post("/", async (req, res) => {});
+dependentesController.post("/:idIntegrante", async (req, res) => {
+  const id = Number(req.params.idIntegrante);
+  const response = await dependentesService.addDependente(id, req.body);
+  return res.status(200).json(response);
+});
 
 //Sobrescrever um Depedente
-dependentesController.put("/:id", async (req, res) => {
+dependentesController.put("/:idIntegrante/:id", async (req, res) => {
   const id = Number(req.params.id);
+  const response = await dependentesService.editDependenteById(id, req.body);
+  return res.status(200).json(response);
 });
 
 // Deleta um Dependente pelo ID
-dependentesController.delete("/:id", async (req, res) => {
+dependentesController.delete("/:idIntegrante/:id", async (req, res) => {
   const id = Number(req.params.id);
+  const response = await dependentesService.deleteDependenteById(id);
+  return res.status(200).json(response);
 });
