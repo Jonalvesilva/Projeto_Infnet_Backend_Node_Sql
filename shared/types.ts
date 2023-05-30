@@ -1,5 +1,5 @@
 export type Integrante = {
-  name: string;
+  nome: string;
   cpf: string;
   data_nasc: string;
   plano: string;
@@ -8,12 +8,14 @@ export type Integrante = {
   tel_cel: string;
   tel_res: string;
   email: string;
+  num_carteirinha: string;
 };
 
 export type Dependente = {
   name: string;
   data_nasc: string;
   cpf: string;
+  num_carteirinha: string;
 };
 
 export type FindParams = {
