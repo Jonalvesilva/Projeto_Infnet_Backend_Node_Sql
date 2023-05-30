@@ -32,7 +32,11 @@ export async function getDepedentes(
     where t1.id_integrante=${id_integrante} ${sqlSearch} ${sqlOrderBy} limit ${limit} offset ${offset}`
   );
 
-  return dependentes;
+  const totalDependentes = await pool.one(
+    sql`SELECT count(id_dependente) from public.dependentes where id_integrante = ${id_integrante}`
+  );
+
+  return { dependentes: dependentes, total: totalDependentes.count };
 }
 
 //Function Mostrar Dependente por ID
