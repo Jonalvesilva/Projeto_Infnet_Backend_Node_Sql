@@ -4,7 +4,9 @@ import "./App.css";
 import { Appbar } from "./components/Appbar";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Home } from "./routes/Home";
-import { TabelaIntegrantes } from "./components/TabelaIntegrantes";
+import { IntegrantesView } from "./routes/IntegrantesView";
+import { IntegranteView } from "./routes/IntegranteView";
+import { IntegranteEdit } from "./routes/IntegranteEdit";
 
 function App() {
   return (
@@ -13,7 +15,12 @@ function App() {
         <Appbar />
         <Routes>
           <Route path="/" element={<Home />}></Route>
-          <Route path="/integrantes" element={<TabelaIntegrantes />}></Route>
+          <Route path="/integrantes" element={<IntegrantesView />}></Route>
+          <Route path="/integrantes/:id" element={<IntegranteView />}></Route>
+          <Route
+            path="/integrantes/:id/editar"
+            element={<IntegranteEdit />}
+          ></Route>
         </Routes>
       </div>
     </BrowserRouter>
