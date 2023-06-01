@@ -12,6 +12,7 @@ type GetIntegrantesInput = {
 type GetIntegrantesOutput = {
   totalIntegrantes: number;
   integrantes: Integrante[];
+  countSearched: number;
 };
 
 export async function getIntegrantes(

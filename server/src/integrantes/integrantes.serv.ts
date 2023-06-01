@@ -28,14 +28,22 @@ export async function getIntegrantes({
     sql`SELECT count(id_integrante) from public.integrantes`
   );
   let integrantes;
+  let countSearched;
+
   try {
     integrantes =
-      await pool.many(sql`SELECT t1.*, t2.plano, t3.ativo AS resgate_ativo, t4.ativo AS desconto_farm from public.integrantes t1 
+      await pool.many(sql`SELECT t1.*, t2.plano, t3.ativo AS resgate_ativo, t4.ativo AS desconto_farm,t5.* from public.integrantes t1 
   JOIN PUBLIC.plano t2 ON t1.id_integrante = t2.id_integrante 
   JOIN PUBLIC.resgate_domiciliar t3 ON t1.id_integrante = t3.id_integrante
-  JOIN PUBLIC.desconto_farmacia t4 ON t1.id_integrante = t4.id_integrante ${sqlSearch} ${sqlOrderBy}
+  JOIN PUBLIC.desconto_farmacia t4 ON t1.id_integrante = t4.id_integrante
+  JOIN PUBLIC.contato t5 ON t1.id_integrante = t5.id_integrante  
+  ${sqlSearch} ${sqlOrderBy}
  limit ${limit} offset ${offset}`);
-  } catch {
+
+    countSearched = await pool.oneFirst(
+      sql`select count(*) from public.integrantes t1 ${sqlSearch}`
+    );
+  } catch (error) {
     return {
       integrantes: [] as Integrante[],
       totalIntegrantes: totalIntegrantes.count,
@@ -45,6 +53,7 @@ export async function getIntegrantes({
   return {
     integrantes: integrantes,
     totalIntegrantes: totalIntegrantes.count,
+    countSearched: countSearched,
   };
 }
 
@@ -52,10 +61,12 @@ export async function getIntegrantes({
 export async function getIntegranteById(id: number) {
   const pool = await getPool();
   const integrante = await pool.one(sql`
-  SELECT t1.*, t2.plano, t3.ativo AS resgate_ativo, t4.ativo AS desconto_farm from public.integrantes t1 
+  SELECT t1.*, t2.plano, t3.ativo AS resgate_ativo, t4.ativo AS desconto_farm,t5.* from public.integrantes t1 
   JOIN PUBLIC.plano t2 ON t1.id_integrante = t2.id_integrante 
   JOIN PUBLIC.resgate_domiciliar t3 ON t1.id_integrante = t3.id_integrante
-  JOIN PUBLIC.desconto_farmacia t4 ON t1.id_integrante = t4.id_integrante where t1.id_integrante=${id}
+  JOIN PUBLIC.desconto_farmacia t4 ON t1.id_integrante = t4.id_integrante 
+  JOIN PUBLIC.contato t5 ON t1.id_integrante = t5.id_integrante 
+  where t1.id_integrante=${id}
   `);
   return integrante;
 }
@@ -75,28 +86,27 @@ export async function addIntegrante(integrante: Integrante) {
   }
 
   const {
-    name,
+    nome,
     cpf,
     data_nasc,
     tel_cel,
     tel_res,
     email,
     plano,
-    resgate_domiciliar,
+    resgate_ativo,
     desconto_farm,
   } = validation.data;
 
   const pool = await getPool();
-
   //Insert Integrante
   let insert = false;
 
   try {
     await pool.one(sql`
-    insert into public.integrantes (nome,data_nasc,cpf)
-    values (${name},${data_nasc},${cpf})
-    returning *
-  `);
+      insert into public.integrantes (nome,data_nasc,cpf)
+      values (${nome},${data_nasc.toISOString()},${cpf})
+      returning *
+    `);
     insert = true;
   } catch (error: any) {
     return `Falha ao adicionar integrante. Erro:${error.message}`;
@@ -122,11 +132,15 @@ export async function addIntegrante(integrante: Integrante) {
     );
 
     const insertResgateDom = await pool.one(
-      sql`insert into public.resgate_domiciliar (id_integrante,ativo) values(${newIntegranteId},${resgate_domiciliar}) returning *`
+      sql`insert into public.resgate_domiciliar (id_integrante,ativo) values(${newIntegranteId},${resgate_ativo}) returning *`
     );
   }
 
-  return "Integrante Cadastrado";
+  return {
+    success: true,
+    message: "Integrante Cadastrado",
+    errors: [],
+  };
 }
 
 //Function Deletar Integrante
@@ -167,20 +181,20 @@ export async function editarIntegranteById(id: number, integrante: Integrante) {
   }
 
   const {
-    name,
+    nome,
     cpf,
     data_nasc,
     tel_cel,
     tel_res,
     email,
     plano,
-    resgate_domiciliar,
+    resgate_ativo,
     desconto_farm,
   } = validation.data;
-
+  /*
   const pool = await getPool();
   const updateIntegrante = await pool.one(
-    sql`update public.integrantes set nome=${name},cpf=${cpf},data_nasc=${data_nasc} where id_integrante=${id} returning *`
+    sql`update public.integrantes set nome=${nome},cpf=${cpf},data_nasc=${data_nasc.toISOString()} where id_integrante=${id} returning *`
   );
 
   const updateContato = await pool.one(
@@ -192,7 +206,7 @@ export async function editarIntegranteById(id: number, integrante: Integrante) {
   );
 
   const updateResgate = await pool.one(
-    sql`update public.resgate_domiciliar set ativo=${resgate_domiciliar} where id_integrante=${id} returning *`
+    sql`update public.resgate_domiciliar set ativo=${resgate_ativo} where id_integrante=${id} returning *`
   );
 
   const updateDescFarm = await pool.one(
@@ -203,8 +217,8 @@ export async function editarIntegranteById(id: number, integrante: Integrante) {
     ...updateIntegrante,
     ...updateContato,
     ...updatePlano,
-    resgate_domiciliar: resgate_domiciliar,
+    resgate_ativo: resgate_ativo,
     desconto_farm: desconto_farm,
   };
-  return { sucess: true, result };
+  return { sucess: true, result };*/
 }

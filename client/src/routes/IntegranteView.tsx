@@ -22,10 +22,11 @@ function getBreadcrumbs() {
   ];
 }
 
+const date = new Date();
 const emptyIntegrante = {
   nome: "",
   cpf: "",
-  data_nasc: "",
+  data_nasc: date,
   plano: "",
   resgate_ativo: false,
   desconto_farm: false,
@@ -43,6 +44,8 @@ export function IntegranteView() {
   useEffect(() => {
     getIntegrante(Number(params.id)).then((res) => setIntegrante(res));
   }, []);
+
+  console.log(integrante);
 
   async function onClickDelete() {
     const response = await deleteIntegrante(Number(params.id));
@@ -79,7 +82,7 @@ export function IntegranteView() {
         <div className="flex gap-4 mb-2 py-2 border-b">
           <span className="flex flex-row gap-2 md:text-xl">
             <h2 className="font-bold italic md:text-xl">Data Nascimento:</h2>
-            {integrante.data_nasc}
+            {integrante.data_nasc.toString()}
           </span>
         </div>
         <div className="flex gap-4 mb-2 py-2 border-b">
@@ -95,23 +98,23 @@ export function IntegranteView() {
         <div className="flex gap-4 mb-2 py-2 border-b">
           <span className="flex flex-row gap-2 md:text-xl">
             <h2 className="font-bold italic md:text-xl">Email:</h2>
-            {integrante.data_nasc}
+            {integrante.email}
           </span>
         </div>
         <div className="flex gap-4 mb-2 py-2 border-b">
           <span className="flex flex-row gap-2 md:text-xl">
             <h2 className="font-bold italic md:text-xl">Plano:</h2>
-            {integrante.data_nasc}
+            {integrante.plano}
           </span>
         </div>
         <div className="flex gap-4 mb-2 py-2 border-b">
           <span className="flex flex-row gap-2 md:text-xl">
             <h2 className="font-bold italic md:text-xl">Resgate:</h2>
-            {integrante.data_nasc}
+            {integrante.resgate_ativo.toString()}
           </span>
           <span className="flex flex-row gap-2 md:text-xl">
             <h2 className="font-bold italic md:text-xl">Desconto Farmácia:</h2>
-            {integrante.data_nasc}
+            {integrante.desconto_farm.toString()}
           </span>
         </div>
         <div className="mt-8 flex flex-row gap-4">
@@ -123,7 +126,7 @@ export function IntegranteView() {
           </Button>
           <LinkButton
             className="bg-green-600 hover:bg-green-500 btn-text-shadow px-5 py-1 rounded-xl text-white"
-            to={`/integrantes/editar/${params.id}`}
+            to={`/integrantes/${params.id}/editar/`}
           >
             Editar
           </LinkButton>

@@ -1,7 +1,8 @@
 export type Integrante = {
+  id_integrante?: number;
   nome: string;
   cpf: string;
-  data_nasc: string;
+  data_nasc: Date;
   plano: string;
   resgate_ativo: boolean;
   desconto_farm: boolean;
@@ -13,7 +14,7 @@ export type Integrante = {
 
 export type Dependente = {
   name: string;
-  data_nasc: string;
+  data_nasc: Date;
   cpf: string;
   num_carteirinha: string;
 };

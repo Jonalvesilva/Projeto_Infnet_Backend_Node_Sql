@@ -32,6 +32,7 @@ integrantesController.get("/:id", async (req, res) => {
 integrantesController.post("/", async (req, res) => {
   const response = await integranteService.addIntegrante(req.body);
   res.status(201).json(response);
+  console.log(response);
 });
 
 //Alterar um Integrante

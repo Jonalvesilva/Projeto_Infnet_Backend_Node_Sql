@@ -1,7 +1,7 @@
 import { api } from "../api";
 import type { Integrante } from "../../../../shared/types";
 
-export type PutIntegranteInput = {
+export type PostIntegranteInput = {
   nome: string;
   cpf: string;
   data_nasc: Date;
@@ -13,15 +13,15 @@ export type PutIntegranteInput = {
   email: string;
 };
 
-export type PutIntegranteOutput = {
+export type PostIntegranteOutput = {
   success: boolean;
   integrante: Integrante;
 };
 
-export async function putIntegrante(
-  id: number,
-  integrante: PutIntegranteInput
-): Promise<PutIntegranteOutput> {
-  const res = await api.put(`/integrantes/${id}`, integrante);
+export async function postIntegrante(
+  integrante: PostIntegranteInput
+): Promise<PostIntegranteOutput> {
+  const res = await api.post(`/integrantes/`, integrante);
+
   return res.data;
 }

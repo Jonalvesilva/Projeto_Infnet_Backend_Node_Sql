@@ -7,6 +7,7 @@ import { Home } from "./routes/Home";
 import { IntegrantesView } from "./routes/IntegrantesView";
 import { IntegranteView } from "./routes/IntegranteView";
 import { IntegranteEdit } from "./routes/IntegranteEdit";
+import { CreateIntegrante } from "./routes/CreateIntegrante";
 
 function App() {
   return (
@@ -20,6 +21,10 @@ function App() {
           <Route
             path="/integrantes/:id/editar"
             element={<IntegranteEdit />}
+          ></Route>
+          <Route
+            path="/integrantes/addIntegrantes"
+            element={<CreateIntegrante />}
           ></Route>
         </Routes>
       </div>

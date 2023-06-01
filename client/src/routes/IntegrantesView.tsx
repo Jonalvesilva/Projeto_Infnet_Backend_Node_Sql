@@ -17,9 +17,19 @@ const debouncedGetNotepads = asyncDebounce(getIntegrantes, 1000);
 const initialIntegrantesList = {
   totalIntegrantes: 0,
   integrantes: [] as Integrante[],
+  countSearched: 0,
 };
 
-const headers = ["Carteririnha", "Integrante", "Data Nascimento", "CPF"];
+const headers = [
+  "Carteririnha",
+  "Integrante",
+  "Data Nascimento",
+  "CPF",
+  "Plano",
+  "Resgate",
+  "Desconto Farmácia",
+  "Opções",
+];
 
 export function IntegrantesView() {
   const [searchParams] = useSearchParams();
@@ -34,7 +44,7 @@ export function IntegrantesView() {
   const [page, setPage] = useState(1);
   const offset = pageSize * (page - 1);
 
-  const pageCount = Math.ceil(integrantesList.totalIntegrantes / pageSize);
+  const pageCount = Math.ceil(integrantesList.countSearched / pageSize);
 
   const getIntegrantesParams = {
     offset: 0,
@@ -46,6 +56,7 @@ export function IntegrantesView() {
 
   useEffect(() => {
     debouncedGetNotepads(getIntegrantesParams).then(setIntegrantesList);
+    console.log(integrantesList);
     setPage(1);
   }, [direction, orderBy, search]);
 
@@ -60,11 +71,12 @@ export function IntegrantesView() {
       <Breadcrumbs
         links={[{ title: "Página inicial", link: "/" }]}
       ></Breadcrumbs>
-      <div className="bg-white w-11/12 h-full rounded-xl mx-auto mt-10 p-3 md:max-w-[900px]">
+      <div className="bg-white w-11/12 h-full rounded-xl mx-auto mt-10 p-3 md:max-w-[1000px]">
         <div className="flex flex-col justify-center items-center md:flex-row">
           <div className="p-3 flex justify-start items-center grow">
             <h2 className="text-xl">
-              Integrantes - Total: {integrantesList.totalIntegrantes}
+              Integrantes - Total: {integrantesList.countSearched} de{" "}
+              {integrantesList.totalIntegrantes}
             </h2>
           </div>
           <div className="flex">
@@ -87,8 +99,9 @@ export function IntegrantesView() {
             onChange={(event) => setOrderBy(event.target.value)}
           >
             <option value="nome">Nome</option>
-            <option value="num_carteirinha">Número Carteirinha</option>
+            <option value="num_carteirinha">Carteirinha</option>
             <option value="cpf">CPF</option>
+            <option value="data_nasc">Nascimento</option>
           </select>
           <select
             value={direction}

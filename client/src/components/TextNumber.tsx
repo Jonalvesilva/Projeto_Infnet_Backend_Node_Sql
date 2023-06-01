@@ -1,33 +1,27 @@
-export type TextNumberProps = {
+export type TextFieldProps = {
   className?: string;
   onKeyDown?: (event: Event) => void;
-  value: string;
-  onChange: (value: string) => void;
+  value?: string;
+  onChange?: (value: string) => void;
   placeholder: string;
+  name?: string;
 };
-export const blockInvalidChar = (e: any) =>
-  ["e", "E", "+", "-"].includes(e.key) && e.preventDefault();
 
 export function TextNumber({
   className,
   value,
   placeholder,
+  name,
   onChange,
-}: TextNumberProps) {
+}: TextFieldProps) {
   return (
     <input
       placeholder={placeholder}
       value={value}
-      onChange={(event) => {
-        if (event.target.value[0] === "0") {
-          return;
-        }
-        return onChange(event.target.value);
-      }}
+      onChange={onChange ? (event) => onChange(event.target.value) : undefined}
       className={className}
-      onKeyDown={blockInvalidChar}
-      type="number"
-      required
+      name={name}
+      type="text"
     />
   );
 }
