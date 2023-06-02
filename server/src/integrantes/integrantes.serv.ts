@@ -191,7 +191,7 @@ export async function editarIntegranteById(id: number, integrante: Integrante) {
     resgate_ativo,
     desconto_farm,
   } = validation.data;
-  /*
+
   const pool = await getPool();
   const updateIntegrante = await pool.one(
     sql`update public.integrantes set nome=${nome},cpf=${cpf},data_nasc=${data_nasc.toISOString()} where id_integrante=${id} returning *`
@@ -220,5 +220,5 @@ export async function editarIntegranteById(id: number, integrante: Integrante) {
     resgate_ativo: resgate_ativo,
     desconto_farm: desconto_farm,
   };
-  return { sucess: true, result };*/
+  return { success: true, result };
 }

@@ -13,10 +13,13 @@ export type Integrante = {
 };
 
 export type Dependente = {
-  name: string;
+  nome: string;
   data_nasc: Date;
   cpf: string;
   num_carteirinha: string;
+  nome_integrante?: string;
+  id_integrante?: number;
+  id_dependente?: number;
 };
 
 export type FindParams = {

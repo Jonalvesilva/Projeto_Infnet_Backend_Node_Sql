@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
-import { LinkButton } from "../components/LinkButton";
-import { Breadcrumbs } from "../components/Breadcumbs";
+import { LinkButton } from "../../components/LinkButton";
+import { Breadcrumbs } from "../../components/Breadcumbs";
 import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-simple-toasts";
-import { getIntegrante } from "../api/integrantes/getIntegrante";
-import { deleteIntegrante } from "../api/integrantes/deleteIntegrante";
-import { Card } from "../components/Card";
-import { Button } from "../components/Button";
+import { getIntegrante } from "../../api/integrantes/getIntegrante";
+import { deleteIntegrante } from "../../api/integrantes/deleteIntegrante";
+import { Card } from "../../components/Card";
+import { Button } from "../../components/Button";
+import { useGlobalStore } from "../../useGlobalStore";
+import { FiLoader } from "react-icons/fi";
 
 const texts = {
   deleteSuccess: "O integrante foi deletado com sucesso!",
@@ -40,15 +42,17 @@ export function IntegranteView() {
   const params = useParams();
   const navigate = useNavigate();
   const [integrante, setIntegrante] = useState(emptyIntegrante);
+  const isLoading = useGlobalStore((state) => state.isLoading);
+  const setIsLoading = useGlobalStore((state) => state.setIsLoading);
 
   useEffect(() => {
     getIntegrante(Number(params.id)).then((res) => setIntegrante(res));
   }, []);
 
-  console.log(integrante);
-
   async function onClickDelete() {
+    setIsLoading(true);
     const response = await deleteIntegrante(Number(params.id));
+    setIsLoading(false);
     if (response.success) {
       toast(texts.deleteSuccess);
       navigate("/integrantes");
@@ -118,12 +122,16 @@ export function IntegranteView() {
           </span>
         </div>
         <div className="mt-8 flex flex-row gap-4">
-          <Button
+          <button
             onClick={onClickDelete}
             className="bg-red-600 hover:bg-red-500 btn-text-shadow px-4 py-1 rounded-xl text-white"
           >
-            Deletar
-          </Button>
+            {isLoading ? (
+              <FiLoader className="text-white animate-spin text-lg inline" />
+            ) : (
+              `Deletar`
+            )}
+          </button>
           <LinkButton
             className="bg-green-600 hover:bg-green-500 btn-text-shadow px-5 py-1 rounded-xl text-white"
             to={`/integrantes/${params.id}/editar/`}

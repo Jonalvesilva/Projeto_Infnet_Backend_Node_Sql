@@ -35,6 +35,6 @@ export const cpfSchema = z
     message: errors.maxLengthCpf("cpf", 11),
   });
 
-export const dataNascSchema = z
-  .string()
-  .datetime({ message: "Formato Inválido" });
+export const dataNascSchema = z.preprocess((arg) => {
+  if (typeof arg == "string" || arg instanceof Date) return new Date(arg);
+}, z.date());

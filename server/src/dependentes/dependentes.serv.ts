@@ -5,14 +5,8 @@ import type { Dependente, FindParams } from "../../../shared/types";
 import * as schema from "./schemas/createDependenteSchema";
 
 //Function Mostrar Dependentes - Search Adaptado
-export async function getDepedentes(
-  {
-    limit = 10,
-    offset = 0,
-    search = "",
-    order_by = "nome",
-    direction = "desc",
-  }: FindParams = {},
+export async function getDependentes(
+  { search = "", order_by = "nome", direction = "desc" }: FindParams = {},
   id_integrante: number
 ) {
   const pool = await getPool();
@@ -27,25 +21,37 @@ export async function getDepedentes(
     order_by,
   ])} ${sqlDirection}`;
 
-  const dependentes = await pool.many(
-    sql`SELECT t1.*,t2.nome as nome_integrante from public.dependentes t1 JOIN public.integrantes t2 on t1.id_integrante = t2.id_integrante
-    where t1.id_integrante=${id_integrante} ${sqlSearch} ${sqlOrderBy} limit ${limit} offset ${offset}`
-  );
+  let dependentes;
+  let totalDependentes;
 
-  const totalDependentes = await pool.one(
-    sql`SELECT count(id_dependente) from public.dependentes where id_integrante = ${id_integrante}`
-  );
+  try {
+    dependentes = await pool.many(
+      sql`SELECT t1.*,t2.nome as nome_integrante from public.dependentes t1 JOIN public.integrantes t2 on t1.id_integrante = t2.id_integrante
+    where t1.id_integrante=${id_integrante} ${sqlSearch} ${sqlOrderBy}`
+    );
 
-  return { dependentes: dependentes, total: totalDependentes.count };
+    totalDependentes = await pool.one(
+      sql`SELECT count(id_dependente) from public.dependentes where id_integrante = ${id_integrante}`
+    );
+  } catch {
+    return {
+      success: false,
+      dependentes: [] as Dependente[],
+      totalDependentes: 0,
+    };
+  }
+  return {
+    dependentes: dependentes,
+    total: totalDependentes.count,
+  };
 }
 
 //Function Mostrar Dependente por ID
-export async function getDepedenteById(id: number) {
+export async function getDependenteById(id: number) {
   const pool = await getPool();
   const dependente = await pool.one(
     sql`SELECT * from public.dependentes where id_dependente = ${id}`
   );
-  console.log(dependente);
   return dependente;
 }
 
@@ -66,14 +72,14 @@ export async function addDependente(
     };
   }
 
-  const { name, data_nasc, cpf } = validation.data;
+  const { nome, data_nasc, cpf } = validation.data;
   const pool = await getPool();
 
   const insertDependente = await pool.one(
-    sql`Insert into public.dependentes (id_integrante, nome,data_nasc,cpf) values (${idIntegrante},${name},${data_nasc},${cpf}) returning *`
+    sql`Insert into public.dependentes (id_integrante, nome,data_nasc,cpf) values (${idIntegrante},${nome},${data_nasc.toISOString()},${cpf}) returning *`
   );
 
-  return insertDependente;
+  return { success: true, insertDependente };
 }
 
 //Function Editar Dependente
@@ -93,13 +99,13 @@ export async function editDependenteById(
     };
   }
   const pool = await getPool();
-  const { name, data_nasc, cpf } = validation.data;
+  const { nome, data_nasc, cpf } = validation.data;
 
   const editDependente = await pool.one(
-    sql`update public.dependentes set nome=${name}, data_nasc=${data_nasc}, cpf=${cpf} where id_dependente=${id_dependente} returning *`
+    sql`update public.dependentes set nome=${nome}, data_nasc=${data_nasc.toISOString()}, cpf=${cpf} where id_dependente=${id_dependente} returning *`
   );
 
-  return editDependente;
+  return { success: true, editDependente };
 }
 
 //Function Deleta Dependente

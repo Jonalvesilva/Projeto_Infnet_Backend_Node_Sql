@@ -5,6 +5,7 @@ export type TextFieldProps = {
   onChange?: (value: string) => void;
   placeholder: string;
   name?: string;
+  defaultValue?: string;
 };
 
 export function TextField({
@@ -13,6 +14,7 @@ export function TextField({
   placeholder,
   name,
   onChange,
+  defaultValue,
 }: TextFieldProps) {
   return (
     <input
@@ -21,6 +23,7 @@ export function TextField({
       onChange={onChange ? (event) => onChange(event.target.value) : undefined}
       className={className}
       name={name}
+      defaultValue={defaultValue}
       type="text"
     />
   );

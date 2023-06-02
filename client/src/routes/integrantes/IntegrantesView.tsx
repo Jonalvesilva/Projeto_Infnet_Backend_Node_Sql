@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useParams } from "react-router-dom";
-import { LinkButton } from "../components/LinkButton";
-import { Integrante } from "../../../shared/types";
-import "../App.css";
-import { SearchBar } from "../components/SearchBar";
-import { config } from "../config";
-import { getIntegrantes } from "../api/integrantes/getIntegrantes";
-import { asyncDebounce } from "../asyncDebounce";
-import { PaginationButtons } from "../components/PaginationButtons";
-import { Breadcrumbs } from "../components/Breadcumbs";
-import { TabelaIntegrantes } from "../components/TabelaIntegrantes";
+import { LinkButton } from "../../components/LinkButton";
+import { Integrante } from "../../../../shared/types";
+import "../../App.css";
+import { SearchBar } from "../../components/SearchBar";
+import { config } from "../../config";
+import { getIntegrantes } from "../../api/integrantes/getIntegrantes";
+import { asyncDebounce } from "../../asyncDebounce";
+import { PaginationButtons } from "../../components/PaginationButtons";
+import { Breadcrumbs } from "../../components/Breadcumbs";
+import { TabelaIntegrantes } from "../../components/TabelaIntegrantes";
 
 const pageSize = config.pageSize;
 const debouncedGetNotepads = asyncDebounce(getIntegrantes, 1000);

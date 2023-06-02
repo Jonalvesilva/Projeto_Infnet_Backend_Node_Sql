@@ -12,7 +12,7 @@ dependentesController.get("/:idIntegrante", async (req, res) => {
   const search =
     req.query.search !== undefined ? req.query.search.toString() : undefined;
 
-  const response = await dependentesService.getDepedentes(
+  const response = await dependentesService.getDependentes(
     {
       limit,
       offset,
@@ -28,7 +28,7 @@ dependentesController.get("/:idIntegrante", async (req, res) => {
 //Pega Dependente pelo ID
 dependentesController.get("/:idIntegrante/:id", async (req, res) => {
   const id = Number(req.params.id);
-  const response = await dependentesService.getDepedenteById(id);
+  const response = await dependentesService.getDependenteById(id);
   return res.status(200).json(response);
 });
 

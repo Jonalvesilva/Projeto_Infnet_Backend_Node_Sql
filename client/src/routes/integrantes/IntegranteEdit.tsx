@@ -1,19 +1,23 @@
+import { useState, useEffect } from "react";
 import toast from "react-simple-toasts";
 import { useNavigate, useParams } from "react-router-dom";
 import { useZorm } from "react-zorm";
-import { createIntegranteSchema } from "../schemas/integrantes/createIntegranteSchema";
-import { TextField } from "../components/TextField";
-import { postIntegrante } from "../api/integrantes/postIntegrante";
-import { Breadcrumbs } from "../components/Breadcumbs";
-import { TextNumber } from "../components/TextNumber";
-import { ErrorMessage } from "../components/ErrorMessage";
-import { useGlobalStore } from "../useGlobalStore";
+import { createIntegranteSchema } from "../../schemas/integrantes/createIntegranteSchema";
+import { TextField } from "../../components/TextField";
+import { getIntegrante } from "../../api/integrantes/getIntegrante";
+import { putIntegrante } from "../../api/integrantes/putIntegrante";
+import { Breadcrumbs } from "../../components/Breadcumbs";
+import { TextNumber } from "../../components/TextNumber";
+import { ErrorMessage } from "../../components/ErrorMessage";
+import { useForm } from "react-hook-form";
+import { useGlobalStore } from "../../useGlobalStore";
 import { FiLoader } from "react-icons/fi";
 
 function getBreadcrumbs(title: string, id: number) {
   return [
     { title: "Página inicial", link: "/" },
     { title: "Integrantes", link: `/integrantes/` },
+    { title, link: `/integrantes/${id}` },
   ];
 }
 
@@ -29,51 +33,61 @@ const initialIntegranteEdit = {
   tel_cel: "",
   tel_res: "",
   email: "",
-  num_carteirinha: "",
 };
 
-export function CreateIntegrante() {
+export function IntegranteEdit() {
   const params = useParams();
   const navigate = useNavigate();
   const isLoading = useGlobalStore((state) => state.isLoading);
   const setIsLoading = useGlobalStore((state) => state.setIsLoading);
-  const zo = useZorm("createIntegrante", createIntegranteSchema, {
+  const zo = useZorm("editIntegrante", createIntegranteSchema, {
     async onValidSubmit(event) {
       event.preventDefault();
       const integrante = event.data;
       setIsLoading(true);
-      const response = await postIntegrante(integrante);
+      const response = await putIntegrante(Number(params.id), integrante);
       setIsLoading(false);
+      console.log(response);
       if (response.success) {
-        toast("O integrante foi adcionado com sucesso");
-        navigate(`/integrantes`);
+        toast("O integrante foi editado com sucesso");
+        navigate(`/integrantes/${params.id}`);
       } else {
-        toast("Não foi possível adicionar o integrante");
+        toast("Não foi possível editar o integrante");
       }
     },
   });
 
   const disabled = zo.validation?.success === false;
 
+  const [integrantesEditValues, setIntegrantesValues] = useState(
+    initialIntegranteEdit
+  );
+
+  useEffect(() => {
+    getIntegrante(Number(params.id)).then((value) =>
+      setIntegrantesValues(value)
+    );
+  }, []);
+
   return (
     <div>
       <Breadcrumbs links={getBreadcrumbs(`Perfil`, Number(params.id))} />
       <h1 className="text-center font-bold italic text-white font-serif my-4 text-2xl md:text-3xl ">
-        Adicionar Integrante
+        Editar Integrante
       </h1>
       <form
         className="flex flex-col gap-2 mx-2 md:mx-auto md:max-w-screen-md"
         ref={zo.ref}
-        noValidate
         method="POST"
       >
         <label className="text-lg text-white">Nome:</label>
         <TextField
           placeholder="Digite o Nome"
-          className={`h-12 rounded-xl px-2 my-2 text-lg ${zo.errors.nome(
+          className={`nome h-12 rounded-xl px-2 my-2 text-lg ${zo.errors.nome(
             "border-red-500 focus:border-red-500"
           )}`}
           name={zo.fields.nome()}
+          defaultValue={`${integrantesEditValues.nome}`}
         />
         {zo.errors.nome((error) => (
           <ErrorMessage message={error.message} />
@@ -180,7 +194,7 @@ export function CreateIntegrante() {
         <button
           disabled={disabled}
           type="submit"
-          className="mt-2 w-full h-10 bg-green-700 text-white"
+          className="mt-2 w-full h-10 bg-green-700 text-white disabled:bg-gray-500"
         >
           {isLoading ? (
             <FiLoader className="text-white animate-spin text-lg inline" />
